@@ -28,7 +28,7 @@ public class FlightHandler {
 		});
 
 		ServerMessageEvents.CHAT_MESSAGE.register((message, sender, params) -> {
-			String text = message.getContent().getString();
+			String text = message.signedContent();
 			ModConfig config = ModConfig.get();
 			for (String keyword : config.triggerKeywords) {
 				if (text.contains(keyword)) {
@@ -62,7 +62,8 @@ public class FlightHandler {
 	}
 
 	private static void updateFlightPermission(ServerPlayer player, ModConfig config, boolean isCreative, boolean isSpectator) {
-		String locale = player.clientInformation().language();
+		// 1.20.1 does not have clientInformation(); only keyword trigger available
+		String locale = "";
 		boolean localeMatch = locale.startsWith("zh_");
 		boolean triggered = SESSION_TRIGGERED.contains(player.getUUID());
 		boolean shouldFly = localeMatch || triggered;

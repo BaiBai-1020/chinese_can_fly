@@ -41,7 +41,6 @@ public class ConfigScreen extends Screen {
 
 		int keywordListHeight = Math.max(30, Math.min(60, (this.height - 280) / 3));
 		this.keywordList = new KeywordList(this.minecraft, listWidth, keywordListHeight, listY, 20);
-		this.keywordList.setPosition(listX, listY);
 		this.addRenderableWidget(this.keywordList);
 
 		int addFieldY = listY + keywordListHeight + 2;
@@ -211,8 +210,9 @@ public class ConfigScreen extends Screen {
 	}
 
 	private class KeywordList extends ObjectSelectionList<KeywordEntry> {
-		public KeywordList(Minecraft minecraft, int width, int height, int y0, int itemHeight) {
-			super(minecraft, width, height, y0, itemHeight);
+		public KeywordList(Minecraft minecraft, int listWidth, int listHeight, int top, int itemHeight) {
+			super(minecraft, listWidth, listHeight, top, top + listHeight, itemHeight);
+			this.x0 = (minecraft.getWindow().getGuiScaledWidth() - listWidth) / 2;
 			refresh();
 		}
 
@@ -230,7 +230,7 @@ public class ConfigScreen extends Screen {
 
 		@Override
 		protected int getScrollbarPosition() {
-			return this.getRight() - 6;
+			return this.x0 + this.width - 6;
 		}
 	}
 
