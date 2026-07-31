@@ -138,9 +138,10 @@ public class ConfigScreen extends Screen {
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-		super.render(graphics, mouseX, mouseY, delta);
+		super.extractRenderState(graphics, mouseX, mouseY, delta);
 		String titleStr = this.title.getString();
-		drawCenteredTitle(this.font, titleStr, this.width / 2, 14, 0xFFFFFFFF);
+		int tw = this.font.width(titleStr);
+		graphics.text(this.font, titleStr, this.width / 2 - tw / 2, 14, 0xFFFFFFFF, false);
 		int labelColor = 0xFFA0A0A0;
 		final int lh = this.font.lineHeight;
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.sound_id", soundIdField, labelColor, lh);
@@ -155,8 +156,8 @@ public class ConfigScreen extends Screen {
 		if (field == null) return;
 		String text = Component.translatable(key).getString();
 		int labelX = field.getX() - LABEL_WIDTH - 4;
-		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2;
-		graphics.text(this.font, text, labelX, labelY, color);
+		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2 + lineHeight;
+		graphics.text(this.font, text, labelX, labelY, color, false);
 	}
 
 	@Override
@@ -192,9 +193,9 @@ public class ConfigScreen extends Screen {
 		public void extractContent(GuiGraphicsExtractor graphics, int x, int y, boolean hovered, float delta) {
 			int sx = owner.getX() + 4;
 			int sy = owner.getY() + y + (WIDGET_HEIGHT - font.lineHeight) / 2 + font.lineHeight;
-			graphics.text(font, keyword, sx, sy, 0xFFFFFFFF);
+			graphics.text(font, keyword, sx, sy, 0xFFFFFFFF, false);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.text(font, removeLabel, owner.getX() + owner.getRowWidth() - font.width(removeLabel) - 8, sy, 0xFFFF5555);
+			graphics.text(font, removeLabel, owner.getX() + owner.getRowWidth() - font.width(removeLabel) - 8, sy, 0xFFFF5555, false);
 		}
 
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
