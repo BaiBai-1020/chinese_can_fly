@@ -26,6 +26,9 @@ public class ConfigScreen extends Screen {
 	private Button loopToggle;
 
 	private static final int LABEL_WIDTH = 80;
+	private static final int WIDGET_HEIGHT = 20;
+	private static final int ROW_SPACING = 24;
+	private static final int LIST_HEIGHT = 60;
 
 	public ConfigScreen(Screen parent) {
 		super(Component.translatable("screen." + ExampleMod.MOD_ID + ".config.title"));
@@ -35,21 +38,22 @@ public class ConfigScreen extends Screen {
 
 	@Override
 	protected void init() {
-		int listWidth = Math.min(280, this.width - 40);
+		int listWidth = Math.min(300, this.width - 40);
 		int listX = (this.width - listWidth) / 2;
-		int listY = 28;
 
-		int keywordListHeight = Math.max(30, Math.min(60, (this.height - 280) / 3));
-		this.keywordList = new KeywordList(this.minecraft, listWidth, keywordListHeight, listY, 20);
+		// Keyword list
+		int listY = 30;
+		this.keywordList = new KeywordList(this.minecraft, listWidth, LIST_HEIGHT, listY, WIDGET_HEIGHT);
 		this.keywordList.setPosition(listX, listY);
 		this.addRenderableWidget(this.keywordList);
 
-		int addFieldY = listY + keywordListHeight + 2;
-		this.addKeywordField = new EditBox(this.font, listX, addFieldY, listWidth - 50, 20,
+		// Add keyword row
+		int rowY = listY + LIST_HEIGHT + 4;
+		this.addKeywordField = new EditBox(this.font, listX, rowY, listWidth - 50, WIDGET_HEIGHT,
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.add_hint"));
 		this.addRenderableWidget(this.addKeywordField);
 
-		Button addBtn = Button.builder(
+		this.addRenderableWidget(Button.builder(
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.add"),
 			btn -> {
 				String text = addKeywordField.getValue().trim();
@@ -60,42 +64,26 @@ public class ConfigScreen extends Screen {
 					keywordList.refresh();
 				}
 			}
-		).bounds(listX + listWidth - 45, addFieldY, 45, 20).build();
-		this.addRenderableWidget(addBtn);
+		).bounds(listX + listWidth - 45, rowY, 45, WIDGET_HEIGHT).build());
 
-		int fieldStartY = addFieldY + 24;
-		int fieldWidth = listWidth - LABEL_WIDTH - 4;
+		// Field rows
+		int fieldStartY = rowY + ROW_SPACING + 8;
 		int fieldX = listX + LABEL_WIDTH + 4;
+		int fieldWidth = listWidth - LABEL_WIDTH - 4;
+		int btnWidth = listWidth;
 
-		this.soundIdField = new EditBox(this.font, fieldX, fieldStartY, fieldWidth, 20,
-			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.sound_id"));
+		this.soundIdField = addFieldRow(fieldStartY, fieldX, fieldWidth, config.flightSoundId);
 		this.soundIdField.setMaxLength(200);
-		this.soundIdField.setValue(config.flightSoundId);
-		this.addRenderableWidget(this.soundIdField);
+		this.volumeField = addFieldRow(fieldStartY + ROW_SPACING, fieldX, fieldWidth, String.valueOf(config.flightSoundVolume));
+		this.checkIntervalField = addFieldRow(fieldStartY + ROW_SPACING * 2, fieldX, fieldWidth, String.valueOf(config.checkIntervalTicks));
 
-		this.volumeField = new EditBox(this.font, fieldX, fieldStartY + 24, fieldWidth, 20,
-			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.volume"));
-		this.volumeField.setValue(String.valueOf(config.flightSoundVolume));
-		this.addRenderableWidget(this.volumeField);
+		int btnY = fieldStartY + ROW_SPACING * 3;
+		this.fallDamageToggle = addToggleButton(listX, btnY, btnWidth,
+			"screen." + ExampleMod.MOD_ID + ".config.prevent_fall_damage",
+			config.preventFallDamageWhenNotFlying,
+			v -> { config.preventFallDamageWhenNotFlying = v; config.save(); });
 
-		this.checkIntervalField = new EditBox(this.font, fieldX, fieldStartY + 48, fieldWidth, 20,
-			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.check_interval"));
-		this.checkIntervalField.setValue(String.valueOf(config.checkIntervalTicks));
-		this.addRenderableWidget(this.checkIntervalField);
-
-		this.fallDamageToggle = Button.builder(
-			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.prevent_fall_damage",
-				Component.translatable(config.preventFallDamageWhenNotFlying ? "options.on" : "options.off")),
-			btn -> {
-				config.preventFallDamageWhenNotFlying = !config.preventFallDamageWhenNotFlying;
-				config.save();
-				btn.setMessage(Component.translatable("screen." + ExampleMod.MOD_ID + ".config.prevent_fall_damage",
-					Component.translatable(config.preventFallDamageWhenNotFlying ? "options.on" : "options.off")));
-			}
-		).bounds(listX, fieldStartY + 72, listWidth, 20).build();
-		this.addRenderableWidget(this.fallDamageToggle);
-
-		Button fallingSoundToggle = Button.builder(
+		this.addRenderableWidget(Button.builder(
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.falling_sound",
 				Component.translatable(config.playSoundWhenFalling ? "options.on" : "options.off")),
 			btn -> {
@@ -104,44 +92,40 @@ public class ConfigScreen extends Screen {
 				btn.setMessage(Component.translatable("screen." + ExampleMod.MOD_ID + ".config.falling_sound",
 					Component.translatable(config.playSoundWhenFalling ? "options.on" : "options.off")));
 			}
-		).bounds(listX, fieldStartY + 96, listWidth, 20).build();
-		this.addRenderableWidget(fallingSoundToggle);
+		).bounds(listX, btnY + ROW_SPACING, btnWidth, WIDGET_HEIGHT).build());
 
-		this.minAirBlocksField = new EditBox(this.font, fieldX, fieldStartY + 120, fieldWidth, 20,
-			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.min_air_blocks"));
-		this.minAirBlocksField.setValue(String.valueOf(config.fallingSoundMinAirBlocks));
-		this.addRenderableWidget(this.minAirBlocksField);
+		this.minAirBlocksField = addFieldRow(btnY + ROW_SPACING * 2, fieldX, fieldWidth, String.valueOf(config.fallingSoundMinAirBlocks));
+		this.fadeInField = addFieldRow(btnY + ROW_SPACING * 3, fieldX, fieldWidth, String.valueOf(config.fadeInMs));
+		this.fadeOutField = addFieldRow(btnY + ROW_SPACING * 4, fieldX, fieldWidth, String.valueOf(config.fadeOutMs));
 
-		this.fadeInField = new EditBox(this.font, fieldX, fieldStartY + 144, fieldWidth, 20,
-			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.fade_in"));
-		this.fadeInField.setValue(String.valueOf(config.fadeInMs));
-		this.addRenderableWidget(this.fadeInField);
+		this.loopToggle = addToggleButton(listX, btnY + ROW_SPACING * 5, btnWidth,
+			"screen." + ExampleMod.MOD_ID + ".config.loop_audio",
+			config.loopAudio,
+			v -> { config.loopAudio = v; config.save(); });
 
-		this.fadeOutField = new EditBox(this.font, fieldX, fieldStartY + 168, fieldWidth, 20,
-			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.fade_out"));
-		this.fadeOutField.setValue(String.valueOf(config.fadeOutMs));
-		this.addRenderableWidget(this.fadeOutField);
+		// Done button
+		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> {
+			saveAllFields();
+			this.minecraft.gui.setScreen(parent);
+		}).bounds(this.width / 2 - 50, this.height - 28, 100, WIDGET_HEIGHT).build());
+	}
 
-		this.loopToggle = Button.builder(
-			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.loop_audio",
-				Component.translatable(config.loopAudio ? "options.on" : "options.off")),
+	private EditBox addFieldRow(int y, int x, int w, String value) {
+		EditBox field = new EditBox(this.font, x, y, w, WIDGET_HEIGHT, Component.empty());
+		field.setValue(value);
+		this.addRenderableWidget(field);
+		return field;
+	}
+
+	private Button addToggleButton(int x, int y, int w, String key, boolean current, java.util.function.Consumer<Boolean> setter) {
+		return this.addRenderableWidget(Button.builder(
+			Component.translatable(key, Component.translatable(current ? "options.on" : "options.off")),
 			btn -> {
-				config.loopAudio = !config.loopAudio;
-				config.save();
-				btn.setMessage(Component.translatable("screen." + ExampleMod.MOD_ID + ".config.loop_audio",
-					Component.translatable(config.loopAudio ? "options.on" : "options.off")));
+				boolean next = !current;
+				setter.accept(next);
+				btn.setMessage(Component.translatable(key, Component.translatable(next ? "options.on" : "options.off")));
 			}
-		).bounds(listX, fieldStartY + 192, listWidth, 20).build();
-		this.addRenderableWidget(this.loopToggle);
-
-		Button doneBtn = Button.builder(
-			CommonComponents.GUI_DONE,
-			btn -> {
-				saveAllFields();
-				this.minecraft.gui.setScreen(parent);
-			}
-		).bounds(this.width / 2 - 50, this.height - 24, 100, 20).build();
-		this.addRenderableWidget(doneBtn);
+		).bounds(x, y, w, WIDGET_HEIGHT).build());
 	}
 
 	private void saveAllFields() {
@@ -149,61 +133,46 @@ public class ConfigScreen extends Screen {
 		if (!newSoundId.isEmpty() && newSoundId.contains(":")) {
 			config.flightSoundId = newSoundId;
 		}
-		try {
-			float vol = Float.parseFloat(volumeField.getValue().trim());
-			config.flightSoundVolume = Math.max(0.0f, Math.min(1.0f, vol));
-		} catch (NumberFormatException ignored) {
-		}
-		try {
-			int check = Integer.parseInt(checkIntervalField.getValue().trim());
-			config.checkIntervalTicks = Math.max(20, check);
-		} catch (NumberFormatException ignored) {
-		}
-		try {
-			int minAir = Integer.parseInt(minAirBlocksField.getValue().trim());
-			config.fallingSoundMinAirBlocks = Math.max(0, minAir);
-		} catch (NumberFormatException ignored) {
-		}
-		try {
-			int fadeIn = Integer.parseInt(fadeInField.getValue().trim());
-			config.fadeInMs = Math.max(0, fadeIn);
-		} catch (NumberFormatException ignored) {
-		}
-		try {
-			int fadeOut = Integer.parseInt(fadeOutField.getValue().trim());
-			config.fadeOutMs = Math.max(0, fadeOut);
-		} catch (NumberFormatException ignored) {
-		}
+		try { config.flightSoundVolume = clamp(Float.parseFloat(volumeField.getValue().trim()), 0f, 1f); } catch (NumberFormatException ignored) {}
+		try { config.checkIntervalTicks = Math.max(20, Integer.parseInt(checkIntervalField.getValue().trim())); } catch (NumberFormatException ignored) {}
+		try { config.fallingSoundMinAirBlocks = Math.max(0, Integer.parseInt(minAirBlocksField.getValue().trim())); } catch (NumberFormatException ignored) {}
+		try { config.fadeInMs = Math.max(0, Integer.parseInt(fadeInField.getValue().trim())); } catch (NumberFormatException ignored) {}
+		try { config.fadeOutMs = Math.max(0, Integer.parseInt(fadeOutField.getValue().trim())); } catch (NumberFormatException ignored) {}
 		config.save();
 	}
+
+	private static float clamp(float v, float min, float max) { return Math.max(min, Math.min(max, v)); }
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
+		drawTitle(graphics);
+		drawLabels(graphics);
+	}
+
+	private void drawTitle(GuiGraphicsExtractor graphics) {
 		String titleStr = this.title.getString();
 		int titleWidth = this.font.width(titleStr);
-		graphics.text(this.font, titleStr, this.width / 2 - titleWidth / 2, 10, 0xFFFFFF, false);
-		if (this.soundIdField != null) {
-			int labelColor = 0xA0A0A0;
-			graphics.text(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.sound_id").getString(),
-				this.soundIdField.getX() - LABEL_WIDTH - 4, this.soundIdField.getY() + 5, labelColor, false);
-			graphics.text(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.volume").getString(),
-				this.volumeField.getX() - LABEL_WIDTH - 4, this.volumeField.getY() + 5, labelColor, false);
-			graphics.text(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.check_interval").getString(),
-				this.checkIntervalField.getX() - LABEL_WIDTH - 4, this.checkIntervalField.getY() + 5, labelColor, false);
-			graphics.text(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.min_air_blocks").getString(),
-				this.minAirBlocksField.getX() - LABEL_WIDTH - 4, this.minAirBlocksField.getY() + 5, labelColor, false);
-			graphics.text(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.fade_in").getString(),
-				this.fadeInField.getX() - LABEL_WIDTH - 4, this.fadeInField.getY() + 5, labelColor, false);
-			graphics.text(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.fade_out").getString(),
-				this.fadeOutField.getX() - LABEL_WIDTH - 4, this.fadeOutField.getY() + 5, labelColor, false);
-		}
+		graphics.text(this.font, titleStr, this.width / 2 - titleWidth / 2, 14, 0xFFFFFF, false);
+	}
+
+	private void drawLabels(GuiGraphicsExtractor graphics) {
+		int labelColor = 0xA0A0A0;
+		final int lh = this.font.lineHeight;
+		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.sound_id", soundIdField, labelColor, lh);
+		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.volume", volumeField, labelColor, lh);
+		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.check_interval", checkIntervalField, labelColor, lh);
+		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.min_air_blocks", minAirBlocksField, labelColor, lh);
+		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.fade_in", fadeInField, labelColor, lh);
+		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.fade_out", fadeOutField, labelColor, lh);
+	}
+
+	private void drawLabel(GuiGraphicsExtractor graphics, String key, EditBox field, int color, int lineHeight) {
+		if (field == null) return;
+		String text = Component.translatable(key).getString();
+		int labelX = field.getX() - LABEL_WIDTH - 4;
+		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2 + lineHeight;
+		graphics.text(this.font, text, labelX, labelY, color, false);
 	}
 
 	@Override
@@ -230,7 +199,7 @@ public class ConfigScreen extends Screen {
 			return this.width - 20;
 		}
 
-	public int getScrollbarPosition() {
+		public int getScrollbarPosition() {
 			return this.getRight() - 6;
 		}
 	}
@@ -247,15 +216,19 @@ public class ConfigScreen extends Screen {
 		@Override
 		public void extractContent(GuiGraphicsExtractor graphics, int x, int y, boolean hovered, float delta) {
 			int w = owner.getRowWidth();
-			graphics.text(font, keyword, x + 4, y + 4, 0xFFFFFF, false);
+			int cy = y + (WIDGET_HEIGHT - font.lineHeight) / 2 + font.lineHeight;
+			graphics.text(font, keyword, x + 4, cy, 0xFFFFFF, false);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.text(font, removeLabel, x + w - 40, y + 4, 0xFF5555, false);
+			graphics.text(font, removeLabel, x + w - font.width(removeLabel) - 4, cy, 0xFF5555, false);
 		}
 
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			int rowLeft = owner.getRowLeft();
 			int rowWidth = owner.getRowWidth();
-			if (mouseX >= rowLeft + rowWidth - 44 && mouseX <= rowLeft + rowWidth - 4) {
+			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
+			int removeRight = rowLeft + rowWidth - 4;
+			int removeLeft = removeRight - font.width(removeLabel) - 4;
+			if (mouseX >= removeLeft && mouseX <= removeRight) {
 				config.triggerKeywords.remove(keyword);
 				config.save();
 				owner.refresh();
