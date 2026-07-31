@@ -153,11 +153,11 @@ public class ConfigScreen extends Screen {
 	private void drawTitle(GuiGraphicsExtractor graphics) {
 		String titleStr = this.title.getString();
 		int titleWidth = this.font.width(titleStr);
-		graphics.text(this.font, titleStr, this.width / 2 - titleWidth / 2, 14, 0xFFFFFF, false);
+		graphics.text(this.font, titleStr, this.width / 2 - titleWidth / 2, 14, 0xFFFFFFFF, false);
 	}
 
 	private void drawLabels(GuiGraphicsExtractor graphics) {
-		int labelColor = 0xA0A0A0;
+		int labelColor = 0xFFA0A0A0;
 		final int lh = this.font.lineHeight;
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.sound_id", soundIdField, labelColor, lh);
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.volume", volumeField, labelColor, lh);
@@ -217,9 +217,9 @@ public class ConfigScreen extends Screen {
 		public void extractContent(GuiGraphicsExtractor graphics, int x, int y, boolean hovered, float delta) {
 			int w = owner.getRowWidth();
 			int cy = y + (WIDGET_HEIGHT - font.lineHeight) / 2 + font.lineHeight;
-			graphics.text(font, keyword, x + 4, cy, 0xFFFFFF, false);
+			graphics.text(font, keyword, x + 4, cy, 0xFFFFFFFF, false);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.text(font, removeLabel, x + w - font.width(removeLabel) - 4, cy, 0xFF5555, false);
+			graphics.text(font, removeLabel, x + w - font.width(removeLabel) - 4, cy, 0xFFFF5555, false);
 		}
 
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
