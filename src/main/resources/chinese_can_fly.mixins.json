@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "cn.autoforged.chinese_can_fly.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "mixins": ["PlayerFallDamageMixin"],
   "injectors": {
     "defaultRequire": 1
