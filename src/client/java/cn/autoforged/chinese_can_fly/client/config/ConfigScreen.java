@@ -230,8 +230,7 @@ public class ConfigScreen extends Screen {
 			return this.width - 20;
 		}
 
-		@Override
-		protected int getScrollbarPosition() {
+	public int getScrollbarPosition() {
 			return this.getRight() - 6;
 		}
 	}
@@ -246,14 +245,14 @@ public class ConfigScreen extends Screen {
 		}
 
 		@Override
-		public void extractContent(GuiGraphicsExtractor graphics, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
+		public void extractContent(GuiGraphicsExtractor graphics, int x, int y, boolean hovered, float delta) {
+			int w = owner.getRowWidth();
 			graphics.text(font, keyword, x + 4, y + 4, 0xFFFFFF, false);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.text(font, removeLabel, x + width - 40, y + 4, 0xFF5555, false);
+			graphics.text(font, removeLabel, x + w - 40, y + 4, 0xFF5555, false);
 		}
 
-		@Override
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			int rowLeft = owner.getRowLeft();
 			int rowWidth = owner.getRowWidth();
 			if (mouseX >= rowLeft + rowWidth - 44 && mouseX <= rowLeft + rowWidth - 4) {
