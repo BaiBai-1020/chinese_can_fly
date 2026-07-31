@@ -1,11 +1,11 @@
-{
+ï»¿{
   "schemaVersion": 1,
   "id": "chinese_can_fly",
   "version": "${version}",
-  "name": "ÖĞ¹úÈËÄÜ·É",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "ä¸­å›½äººèƒ½é£",
+  "description": "é£èµ·æ¥",
   "authors": [
-    "baisurunzhen@126.com"
+    "BaiBai_1020"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
