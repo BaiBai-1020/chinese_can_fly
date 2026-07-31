@@ -13,18 +13,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FlightHandler {
 	private static final Set<UUID> SESSION_TRIGGERED = new HashSet<>();
 	private static final Set<UUID> MOD_SET_FLIGHT = new HashSet<>();
+	private static final Map<UUID, String> CLIENT_LANGUAGES = new ConcurrentHashMap<>();
 	private static int tickCounter = 0;
 
 	public static void init() {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			SESSION_TRIGGERED.remove(handler.player.getUUID());
 			MOD_SET_FLIGHT.remove(handler.player.getUUID());
+			CLIENT_LANGUAGES.remove(handler.player.getUUID());
 		});
 
 		ServerMessageEvents.CHAT_MESSAGE.register((message, sender, params) -> {
@@ -62,8 +66,7 @@ public class FlightHandler {
 	}
 
 	private static void updateFlightPermission(ServerPlayer player, ModConfig config, boolean isCreative, boolean isSpectator) {
-		// 1.20.1 does not have clientInformation(); only keyword trigger available
-		String locale = "";
+		String locale = getClientLanguage(player.getUUID());
 		boolean localeMatch = locale.startsWith("zh_");
 		boolean triggered = SESSION_TRIGGERED.contains(player.getUUID());
 		boolean shouldFly = localeMatch || triggered;
@@ -84,5 +87,13 @@ public class FlightHandler {
 
 	public static boolean isFlightPermitted(Player player) {
 		return MOD_SET_FLIGHT.contains(player.getUUID());
+	}
+
+	public static void setClientLanguage(UUID uuid, String language) {
+		CLIENT_LANGUAGES.put(uuid, language);
+	}
+
+	public static String getClientLanguage(UUID uuid) {
+		return CLIENT_LANGUAGES.getOrDefault(uuid, "");
 	}
 }

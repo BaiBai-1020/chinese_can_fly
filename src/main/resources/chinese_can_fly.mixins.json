@@ -2,7 +2,7 @@
   "required": true,
   "package": "cn.autoforged.chinese_can_fly.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": ["PlayerFallDamageMixin"],
+  "mixins": ["PlayerFallDamageMixin", "ServerPlayerLanguageMixin"],
   "injectors": {
     "defaultRequire": 1
   },
