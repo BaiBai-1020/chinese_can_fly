@@ -31,7 +31,9 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-	modImplementation "com.terraformersmc:modmenu:9.2.0"
+	modImplementation("com.terraformersmc:modmenu:9.2.0") {
+		exclude group: "eu.pb4", module: "placeholder-api"
+	}
 	
 }
 
