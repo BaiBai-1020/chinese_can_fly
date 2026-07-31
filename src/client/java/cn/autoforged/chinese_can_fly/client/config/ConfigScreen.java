@@ -188,15 +188,14 @@ public class ConfigScreen extends Screen {
 		public KeywordEntry(String keyword, KeywordList owner) { this.keyword = keyword; this.owner = owner; }
 
 		@Override
-		public void renderContent(GuiGraphics graphics, int x, int y, boolean hovered, float delta) {
-			int rowLeft = owner.getRowLeft();
-			int rowWidth = owner.getRowWidth();
-			int cy = y + (WIDGET_HEIGHT - font.lineHeight) / 2;
-			graphics.drawString(font, keyword, rowLeft + 4, cy, 0xFFFFFFFF);
+		public void render(GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float delta) {
+			int cy = y + (entryHeight - font.lineHeight) / 2;
+			graphics.drawString(font, keyword, x + 4, cy, 0xFFFFFFFF);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.drawString(font, removeLabel, rowLeft + rowWidth - font.width(removeLabel) - 8, cy, 0xFFFF5555);
+			graphics.drawString(font, removeLabel, x + entryWidth - font.width(removeLabel) - 4, cy, 0xFFFF5555);
 		}
 
+		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			int rowLeft = owner.getRowLeft(), rowWidth = owner.getRowWidth();
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
