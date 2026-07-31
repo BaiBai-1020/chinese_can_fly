@@ -189,11 +189,12 @@ public class ConfigScreen extends Screen {
 
 		@Override
 		public void renderContent(GuiGraphics graphics, int x, int y, boolean hovered, float delta) {
-			int w = owner.getRowWidth();
+			int rowLeft = owner.getRowLeft();
+			int rowWidth = owner.getRowWidth();
 			int cy = y + (WIDGET_HEIGHT - font.lineHeight) / 2;
-			graphics.drawString(font, keyword, x + 4, cy, 0xFFFFFFFF);
+			graphics.drawString(font, keyword, rowLeft + 4, cy, 0xFFFFFFFF);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.drawString(font, removeLabel, x + w - font.width(removeLabel) - 4, cy, 0xFFFF5555);
+			graphics.drawString(font, removeLabel, rowLeft + rowWidth - font.width(removeLabel) - 8, cy, 0xFFFF5555);
 		}
 
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
