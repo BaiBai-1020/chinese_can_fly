@@ -1,0 +1,17 @@
+{
+	"screen.chinese_can_fly.config.title": "中国人能飞配置",
+	"screen.chinese_can_fly.config.add": "添加",
+	"screen.chinese_can_fly.config.add_hint": "新关键词...",
+	"screen.chinese_can_fly.config.remove": "X",
+	"screen.chinese_can_fly.config.sound_id": "音效ID",
+	"screen.chinese_can_fly.config.volume": "音量",
+	"screen.chinese_can_fly.config.check_interval": "检查间隔(tick)",
+	"screen.chinese_can_fly.config.prevent_fall_damage": "落地免摔伤害: %s",
+	"screen.chinese_can_fly.config.falling_sound": "下落时播放音频: %s",
+	"screen.chinese_can_fly.config.min_air_blocks": "最低空气格数",
+	"screen.chinese_can_fly.config.fade_in": "淡入(毫秒)",
+	"screen.chinese_can_fly.config.fade_out": "淡出(毫秒)",
+	"screen.chinese_can_fly.config.loop_audio": "循环播放音频: %s",
+	"message.chinese_can_fly.flight_activated": "飞行权限已激活！",
+	"subtitle.chinese_can_fly.flight_sound": "飞行音效"
+}

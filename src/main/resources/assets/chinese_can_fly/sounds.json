@@ -1,0 +1,8 @@
+{
+	"flight_sound": {
+		"subtitle": "subtitle.chinese_can_fly.flight_sound",
+		"sounds": [
+			"chinese_can_fly:flight_sound"
+		]
+	}
+}

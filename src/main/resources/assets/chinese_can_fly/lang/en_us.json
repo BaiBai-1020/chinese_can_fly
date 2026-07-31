@@ -1,0 +1,17 @@
+{
+	"screen.chinese_can_fly.config.title": "Chinese Can Fly Config",
+	"screen.chinese_can_fly.config.add": "Add",
+	"screen.chinese_can_fly.config.add_hint": "New keyword...",
+	"screen.chinese_can_fly.config.remove": "X",
+	"screen.chinese_can_fly.config.sound_id": "Sound ID",
+	"screen.chinese_can_fly.config.volume": "Volume",
+	"screen.chinese_can_fly.config.check_interval": "Check Interval (ticks)",
+	"screen.chinese_can_fly.config.prevent_fall_damage": "No Fall Damage When Grounded: %s",
+	"screen.chinese_can_fly.config.falling_sound": "Play Sound While Falling: %s",
+	"screen.chinese_can_fly.config.min_air_blocks": "Min Air Blocks Below",
+	"screen.chinese_can_fly.config.fade_in": "Fade In (ms)",
+	"screen.chinese_can_fly.config.fade_out": "Fade Out (ms)",
+	"screen.chinese_can_fly.config.loop_audio": "Loop Audio: %s",
+	"message.chinese_can_fly.flight_activated": "Flight permission activated!",
+	"subtitle.chinese_can_fly.flight_sound": "Flight whoosh"
+}
