@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.GameType;
 
@@ -68,8 +68,8 @@ public class FlightSoundManager {
 		}
 
 		stopSound();
-		ResourceLocation soundId = ResourceLocation.parse(config.flightSoundId);
-		SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.get(soundId);
+		Identifier soundId = Identifier.parse(config.flightSoundId);
+		SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.get(soundId).map(ref -> ref.value()).orElse(null);
 		if (soundEvent != null) {
 			currentSound = new FlightSoundInstance(soundEvent, player, 0);
 			currentSound.setLooping(config.loopAudio);
