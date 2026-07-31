@@ -157,7 +157,7 @@ public class ConfigScreen extends Screen {
 		if (field == null) return;
 		String text = Component.translatable(key).getString();
 		int labelX = field.getX() - LABEL_WIDTH - 4;
-		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2 + lineHeight;
+		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2;
 		graphics.text(this.font, text, labelX, labelY, color, false);
 	}
 
@@ -213,5 +213,8 @@ public class ConfigScreen extends Screen {
 
 		@Override
 		public Component getNarration() { return Component.literal(keyword); }
+
+		@Override
+		public boolean isMouseOver(double mouseX, double mouseY) { return false; }
 	}
 }
