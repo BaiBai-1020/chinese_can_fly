@@ -1,11 +1,11 @@
-{
+﻿{
   "schemaVersion": 1,
   "id": "chinese_can_fly",
   "version": "${version}",
-  "name": "中国人能飞",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "涓浗浜鸿兘椋?,
+  "description": "飞起来",
   "authors": [
-    "baisurunzhen@126.com"
+    "BaiBai_1020"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
