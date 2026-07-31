@@ -28,7 +28,7 @@ public class FlightHandler {
 		});
 
 		ServerMessageEvents.CHAT_MESSAGE.register((message, sender, params) -> {
-			String text = message.signedContent();
+			String text = message.getContent().getString();
 			ModConfig config = ModConfig.get();
 			for (String keyword : config.triggerKeywords) {
 				if (text.contains(keyword)) {

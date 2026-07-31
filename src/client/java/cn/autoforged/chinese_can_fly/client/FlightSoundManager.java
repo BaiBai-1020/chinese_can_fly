@@ -68,7 +68,8 @@ public class FlightSoundManager {
 		}
 
 		stopSound();
-		ResourceLocation soundId = ResourceLocation.parse(config.flightSoundId);
+		String[] parts = config.flightSoundId.split(":", 2);
+		ResourceLocation soundId = new ResourceLocation(parts[0], parts[1]);
 		SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.get(soundId);
 		if (soundEvent != null) {
 			currentSound = new FlightSoundInstance(soundEvent, player, 0);

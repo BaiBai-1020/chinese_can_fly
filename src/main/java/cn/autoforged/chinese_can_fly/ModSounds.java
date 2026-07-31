@@ -9,7 +9,7 @@ public class ModSounds {
 	public static final SoundEvent FLIGHT_SOUND = register("flight_sound");
 
 	private static SoundEvent register(String name) {
-		ResourceLocation id = ResourceLocation.fromNamespaceAndPath(ExampleMod.MOD_ID, name);
+		ResourceLocation id = new ResourceLocation(ExampleMod.MOD_ID, name);
 		return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createVariableRangeEvent(id));
 	}
 
