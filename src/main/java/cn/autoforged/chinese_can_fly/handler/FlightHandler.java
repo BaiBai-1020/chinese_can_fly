@@ -5,8 +5,8 @@ import cn.autoforged.chinese_can_fly.config.ModConfig;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -33,7 +33,7 @@ public class FlightHandler {
 			for (String keyword : config.triggerKeywords) {
 				if (text.contains(keyword)) {
 					SESSION_TRIGGERED.add(sender.getUUID());
-					sender.sendSystemMessage(Component.translatable("message." + ExampleMod.MOD_ID + ".flight_activated").withStyle(ChatFormatting.GREEN));
+					sender.sendSystemMessage(Component.translatable("message." + ExampleMod.MOD_ID + ".flight_activated").withStyle(style -> style.withColor(TextColor.fromRgb(0x55FF55))));
 					break;
 				}
 			}

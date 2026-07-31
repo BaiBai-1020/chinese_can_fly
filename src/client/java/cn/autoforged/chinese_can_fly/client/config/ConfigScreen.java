@@ -3,7 +3,7 @@ package cn.autoforged.chinese_can_fly.client.config;
 import cn.autoforged.chinese_can_fly.ExampleMod;
 import cn.autoforged.chinese_can_fly.config.ModConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -138,7 +138,7 @@ public class ConfigScreen extends Screen {
 			CommonComponents.GUI_DONE,
 			btn -> {
 				saveAllFields();
-				this.minecraft.setScreen(parent);
+				this.minecraft.gui.setScreen(parent);
 			}
 		).bounds(this.width / 2 - 50, this.height - 24, 100, 20).build();
 		this.addRenderableWidget(doneBtn);
@@ -178,36 +178,38 @@ public class ConfigScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		super.render(graphics, mouseX, mouseY, delta);
-		graphics.drawCenteredString(this.font, this.title, this.width / 2, 10, 0xFFFFFF);
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		super.extractRenderState(graphics, mouseX, mouseY, delta);
+		String titleStr = this.title.getString();
+		int titleWidth = this.font.width(titleStr);
+		graphics.text(this.font, titleStr, this.width / 2 - titleWidth / 2, 10, 0xFFFFFF, false);
 		if (this.soundIdField != null) {
 			int labelColor = 0xA0A0A0;
-			graphics.drawString(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.sound_id"),
-				this.soundIdField.getX() - LABEL_WIDTH - 4, this.soundIdField.getY() + 5, labelColor);
-			graphics.drawString(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.volume"),
-				this.volumeField.getX() - LABEL_WIDTH - 4, this.volumeField.getY() + 5, labelColor);
-			graphics.drawString(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.check_interval"),
-				this.checkIntervalField.getX() - LABEL_WIDTH - 4, this.checkIntervalField.getY() + 5, labelColor);
-			graphics.drawString(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.min_air_blocks"),
-				this.minAirBlocksField.getX() - LABEL_WIDTH - 4, this.minAirBlocksField.getY() + 5, labelColor);
-			graphics.drawString(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.fade_in"),
-				this.fadeInField.getX() - LABEL_WIDTH - 4, this.fadeInField.getY() + 5, labelColor);
-			graphics.drawString(this.font,
-				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.fade_out"),
-				this.fadeOutField.getX() - LABEL_WIDTH - 4, this.fadeOutField.getY() + 5, labelColor);
+			graphics.text(this.font,
+				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.sound_id").getString(),
+				this.soundIdField.getX() - LABEL_WIDTH - 4, this.soundIdField.getY() + 5, labelColor, false);
+			graphics.text(this.font,
+				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.volume").getString(),
+				this.volumeField.getX() - LABEL_WIDTH - 4, this.volumeField.getY() + 5, labelColor, false);
+			graphics.text(this.font,
+				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.check_interval").getString(),
+				this.checkIntervalField.getX() - LABEL_WIDTH - 4, this.checkIntervalField.getY() + 5, labelColor, false);
+			graphics.text(this.font,
+				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.min_air_blocks").getString(),
+				this.minAirBlocksField.getX() - LABEL_WIDTH - 4, this.minAirBlocksField.getY() + 5, labelColor, false);
+			graphics.text(this.font,
+				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.fade_in").getString(),
+				this.fadeInField.getX() - LABEL_WIDTH - 4, this.fadeInField.getY() + 5, labelColor, false);
+			graphics.text(this.font,
+				Component.translatable("screen." + ExampleMod.MOD_ID + ".config.fade_out").getString(),
+				this.fadeOutField.getX() - LABEL_WIDTH - 4, this.fadeOutField.getY() + 5, labelColor, false);
 		}
 	}
 
 	@Override
 	public void onClose() {
 		saveAllFields();
-		this.minecraft.setScreen(parent);
+		this.minecraft.gui.setScreen(parent);
 	}
 
 	private class KeywordList extends ObjectSelectionList<KeywordEntry> {
@@ -244,10 +246,10 @@ public class ConfigScreen extends Screen {
 		}
 
 		@Override
-		public void render(GuiGraphics graphics, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
-			graphics.drawString(font, keyword, x + 4, y + 4, 0xFFFFFF);
+		public void extractContent(GuiGraphicsExtractor graphics, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
+			graphics.text(font, keyword, x + 4, y + 4, 0xFFFFFF, false);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.drawString(font, removeLabel, x + width - 40, y + 4, 0xFF5555);
+			graphics.text(font, removeLabel, x + width - 40, y + 4, 0xFF5555, false);
 		}
 
 		@Override

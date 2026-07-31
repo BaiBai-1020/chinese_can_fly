@@ -69,7 +69,7 @@ public class FlightSoundManager {
 
 		stopSound();
 		Identifier soundId = Identifier.parse(config.flightSoundId);
-		SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.get(soundId);
+		SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.get(soundId).map(ref -> ref.value()).orElse(null);
 		if (soundEvent != null) {
 			currentSound = new FlightSoundInstance(soundEvent, player, 0);
 			currentSound.setLooping(config.loopAudio);
