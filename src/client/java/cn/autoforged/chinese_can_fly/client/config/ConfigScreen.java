@@ -42,7 +42,7 @@ public class ConfigScreen extends Screen {
 		int listX = (this.width - listWidth) / 2;
 
 		int listY = 30;
-		this.keywordList = new KeywordList(this.minecraft, listWidth, LIST_HEIGHT, listY, WIDGET_HEIGHT);
+		this.keywordList = new KeywordList(this.minecraft, listWidth, LIST_HEIGHT, listY, WIDGET_HEIGHT, listX);
 		this.keywordList.setPosition(listX, listY);
 		this.addRenderableWidget(this.keywordList);
 
@@ -157,8 +157,8 @@ public class ConfigScreen extends Screen {
 		if (field == null) return;
 		String text = Component.translatable(key).getString();
 		int labelX = field.getX() - LABEL_WIDTH - 4;
-		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2;
-		graphics.text(this.font, text, labelX, labelY, color);
+		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2 + lineHeight;
+		graphics.text(this.font, text, labelX, labelY, color, false);
 	}
 
 	@Override
@@ -168,37 +168,42 @@ public class ConfigScreen extends Screen {
 	}
 
 	private class KeywordList extends ObjectSelectionList<KeywordEntry> {
-		public KeywordList(Minecraft minecraft, int width, int height, int y0, int itemHeight) {
+		private final int listX;
+		public KeywordList(Minecraft minecraft, int width, int height, int y0, int itemHeight, int listX) {
 			super(minecraft, width, height, y0, itemHeight);
+			this.listX = listX;
+			setX(listX);
 			refresh();
 		}
 		public void refresh() {
 			this.clearEntries();
+			int idx = 0;
 			for (String keyword : config.triggerKeywords) {
-				this.addEntry(new KeywordEntry(keyword, this));
+				this.addEntry(new KeywordEntry(keyword, this, idx++));
 			}
 		}
 		@Override
 		public int getRowWidth() { return this.width - 20; }
-		public int getScrollbarPosition() { return this.getRight() - 6; }
+		protected int getScrollbarPosition() { return this.getX() + this.width - 6; }
 	}
 
 	private class KeywordEntry extends ObjectSelectionList.Entry<KeywordEntry> {
 		private final String keyword;
 		private final KeywordList owner;
-		public KeywordEntry(String keyword, KeywordList owner) { this.keyword = keyword; this.owner = owner; }
+		private final int index;
+		public KeywordEntry(String keyword, KeywordList owner, int index) { this.keyword = keyword; this.owner = owner; this.index = index; }
 
 		@Override
 		public void extractContent(GuiGraphicsExtractor graphics, int x, int y, boolean hovered, float delta) {
-			int rowWidth = owner.getRowWidth();
-			int cy = y + (WIDGET_HEIGHT - font.lineHeight) / 2;
-			graphics.text(font, keyword, x + 4, cy, 0xFFFFFFFF, false);
+			int sx = owner.getX() + 4;
+			int sy = owner.getY() + index * WIDGET_HEIGHT + (WIDGET_HEIGHT - font.lineHeight) / 2;
+			graphics.text(font, keyword, sx, sy, 0xFFFFFFFF, false);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.text(font, removeLabel, x + rowWidth - font.width(removeLabel) - 4, cy, 0xFFFF5555, false);
+			graphics.text(font, removeLabel, sx + owner.getRowWidth() - font.width(removeLabel) - 4, sy, 0xFFFF5555, false);
 		}
 
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			int rowLeft = owner.getRowLeft(), rowWidth = owner.getRowWidth();
+			int rowLeft = owner.getX(), rowWidth = owner.getRowWidth();
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
 			int removeRight = rowLeft + rowWidth - 4;
 			int removeLeft = removeRight - font.width(removeLabel) - 4;
