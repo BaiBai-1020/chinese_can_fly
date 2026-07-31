@@ -3,7 +3,7 @@ package cn.autoforged.chinese_can_fly.client.config;
 import cn.autoforged.chinese_can_fly.ExampleMod;
 import cn.autoforged.chinese_can_fly.config.ModConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -41,10 +41,13 @@ public class ConfigScreen extends Screen {
 		int listWidth = Math.min(300, this.width - 40);
 		int listX = (this.width - listWidth) / 2;
 
+		// Keyword list
 		int listY = 30;
 		this.keywordList = new KeywordList(this.minecraft, listWidth, LIST_HEIGHT, listY, WIDGET_HEIGHT);
+		this.keywordList.setPosition(listX, listY);
 		this.addRenderableWidget(this.keywordList);
 
+		// Add keyword row
 		int rowY = listY + LIST_HEIGHT + 4;
 		this.addKeywordField = new EditBox(this.font, listX, rowY, listWidth - 50, WIDGET_HEIGHT,
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.add_hint"));
@@ -63,6 +66,7 @@ public class ConfigScreen extends Screen {
 			}
 		).bounds(listX + listWidth - 45, rowY, 45, WIDGET_HEIGHT).build());
 
+		// Field rows
 		int fieldStartY = rowY + ROW_SPACING + 8;
 		int fieldX = listX + LABEL_WIDTH + 4;
 		int fieldWidth = listWidth - LABEL_WIDTH - 4;
@@ -99,9 +103,10 @@ public class ConfigScreen extends Screen {
 			config.loopAudio,
 			v -> { config.loopAudio = v; config.save(); });
 
+		// Done button
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> {
 			saveAllFields();
-			this.minecraft.setScreen(parent);
+			this.minecraft.gui.setScreen(parent);
 		}).bounds(this.width / 2 - 50, this.height - 28, 100, WIDGET_HEIGHT).build());
 	}
 
@@ -139,12 +144,20 @@ public class ConfigScreen extends Screen {
 	private static float clamp(float v, float min, float max) { return Math.max(min, Math.min(max, v)); }
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		super.render(graphics, mouseX, mouseY, delta);
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+		super.extractRenderState(graphics, mouseX, mouseY, delta);
+		drawTitle(graphics);
+		drawLabels(graphics);
+	}
+
+	private void drawTitle(GuiGraphicsExtractor graphics) {
 		String titleStr = this.title.getString();
 		int titleWidth = this.font.width(titleStr);
-		graphics.drawCenteredString(this.font, titleStr, this.width / 2, 14, 0xFFFFFF);
-		int labelColor = 0xA0A0A0;
+		graphics.text(this.font, titleStr, this.width / 2 - titleWidth / 2, 14, 0xFFFFFFFF, false);
+	}
+
+	private void drawLabels(GuiGraphicsExtractor graphics) {
+		int labelColor = 0xFFA0A0A0;
 		final int lh = this.font.lineHeight;
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.sound_id", soundIdField, labelColor, lh);
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.volume", volumeField, labelColor, lh);
@@ -154,24 +167,23 @@ public class ConfigScreen extends Screen {
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.fade_out", fadeOutField, labelColor, lh);
 	}
 
-	private void drawLabel(GuiGraphics graphics, String key, EditBox field, int color, int lineHeight) {
+	private void drawLabel(GuiGraphicsExtractor graphics, String key, EditBox field, int color, int lineHeight) {
 		if (field == null) return;
 		String text = Component.translatable(key).getString();
 		int labelX = field.getX() - LABEL_WIDTH - 4;
-		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2;
-		graphics.drawString(this.font, text, labelX, labelY, color);
+		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2 + lineHeight;
+		graphics.text(this.font, text, labelX, labelY, color, false);
 	}
 
 	@Override
 	public void onClose() {
 		saveAllFields();
-		this.minecraft.setScreen(parent);
+		this.minecraft.gui.setScreen(parent);
 	}
 
 	private class KeywordList extends ObjectSelectionList<KeywordEntry> {
-		public KeywordList(Minecraft minecraft, int listWidth, int listHeight, int top, int itemHeight) {
-			super(minecraft, listWidth, listHeight, top, top + listHeight, itemHeight);
-			this.x0 = (minecraft.getWindow().getGuiScaledWidth() - listWidth) / 2;
+		public KeywordList(Minecraft minecraft, int width, int height, int y0, int itemHeight) {
+			super(minecraft, width, height, y0, itemHeight);
 			refresh();
 		}
 
@@ -188,7 +200,7 @@ public class ConfigScreen extends Screen {
 		}
 
 		public int getScrollbarPosition() {
-			return this.x0 + this.width - 6;
+			return this.getRight() - 6;
 		}
 	}
 
@@ -202,14 +214,14 @@ public class ConfigScreen extends Screen {
 		}
 
 		@Override
-		public void render(GuiGraphics graphics, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float delta) {
-			int cy = y + (entryHeight - font.lineHeight) / 2;
-			graphics.drawString(font, keyword, x + 4, cy, 0xFFFFFF);
+		public void extractContent(GuiGraphicsExtractor graphics, int x, int y, boolean hovered, float delta) {
+			int w = owner.getRowWidth();
+			int cy = y + (WIDGET_HEIGHT - font.lineHeight) / 2 + font.lineHeight;
+			graphics.text(font, keyword, x + 4, cy, 0xFFFFFFFF, false);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.drawString(font, removeLabel, x + entryWidth - font.width(removeLabel) - 4, cy, 0xFF5555);
+			graphics.text(font, removeLabel, x + w - font.width(removeLabel) - 4, cy, 0xFFFF5555, false);
 		}
 
-		@Override
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
 			int rowLeft = owner.getRowLeft();
 			int rowWidth = owner.getRowWidth();
