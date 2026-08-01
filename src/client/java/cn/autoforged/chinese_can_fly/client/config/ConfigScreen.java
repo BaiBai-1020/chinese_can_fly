@@ -15,7 +15,7 @@ public class ConfigScreen extends Screen {
 	private final Screen parent;
 	private ModConfig config;
 	private EditBox addKeywordField;
-	private EditBox soundIdField, volumeField, checkIntervalField, minAirBlocksField, fadeInField, fadeOutField;
+	private EditBox volumeField, checkIntervalField, minAirBlocksField, fadeInField, fadeOutField;
 	private Button fallDamageToggle, loopToggle;
 	private int page;
 	private final List<Button> kwWidgets = new ArrayList<>();
@@ -72,8 +72,6 @@ public class ConfigScreen extends Screen {
 		).bounds(listX + listWidth - 45, rowY, 45, WIDGET_HEIGHT).build());
 
 		rowY += ROW_H + 6;
-		this.soundIdField = addField(listX, rowY, listWidth - LABEL_WIDTH - 4, config.flightSoundId); this.soundIdField.setMaxLength(200);
-		rowY += ROW_H;
 		this.volumeField = addField(col1X, rowY, fieldW, String.valueOf(config.flightSoundVolume));
 		this.checkIntervalField = addField(col2X, rowY, fieldW, String.valueOf(config.checkIntervalTicks));
 		rowY += ROW_H;
@@ -100,7 +98,6 @@ public class ConfigScreen extends Screen {
 	}
 
 	private void saveAllFields() {
-		String ns = soundIdField.getValue().trim(); if (!ns.isEmpty() && ns.contains(":")) config.flightSoundId = ns;
 		try { config.flightSoundVolume = clamp(Float.parseFloat(volumeField.getValue().trim()), 0f, 1f); } catch (NumberFormatException ignored) {}
 		try { config.checkIntervalTicks = Math.max(20, Integer.parseInt(checkIntervalField.getValue().trim())); } catch (NumberFormatException ignored) {}
 		try { config.fallingSoundMinAirBlocks = Math.max(0, Integer.parseInt(minAirBlocksField.getValue().trim())); } catch (NumberFormatException ignored) {}
@@ -113,10 +110,8 @@ public class ConfigScreen extends Screen {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(g, mouseX, mouseY, delta);
-		String ts = this.title.getString(); int tw = this.font.width(ts);
-		g.text(this.font, ts, this.width / 2 - tw / 2, 14, 0xFFFFFFFF, false);
+		String ts = this.title.getString(); int tw = this.font.width(ts); g.text(this.font, ts, this.width / 2 - tw / 2, 14, 0xFFFFFFFF, false);
 		int lc = 0xFFA0A0A0, lh = this.font.lineHeight;
-		drawLabel(g, "sound_id", soundIdField, lc, lh);
 		drawLabel(g, "volume", volumeField, lc, lh);
 		drawLabel(g, "check_interval", checkIntervalField, lc, lh);
 		drawLabel(g, "min_air_blocks", minAirBlocksField, lc, lh);
