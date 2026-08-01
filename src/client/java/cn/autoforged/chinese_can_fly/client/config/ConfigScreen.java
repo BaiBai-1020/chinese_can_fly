@@ -2,32 +2,30 @@ package cn.autoforged.chinese_can_fly.client.config;
 
 import cn.autoforged.chinese_can_fly.ExampleMod;
 import cn.autoforged.chinese_can_fly.config.ModConfig;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ConfigScreen extends Screen {
 	private final Screen parent;
 	private ModConfig config;
+	private KeywordList keywordList;
 	private EditBox addKeywordField;
 	private EditBox soundIdField, volumeField, checkIntervalField, minAirBlocksField, fadeInField, fadeOutField;
 	private Button fallDamageToggle, loopToggle;
-	private int page;
-	private final List<Button> kwWidgets = new ArrayList<>();
-	private static final int PAGE_SIZE = 3;
 
 	private static final int LABEL_WIDTH = 60;
 	private static final int WIDGET_HEIGHT = 20;
 	private static final int COL_GAP = 12;
 	private static final int ROW_H = 24;
-	private static final int LIST_H = PAGE_SIZE * WIDGET_HEIGHT;
+	private static final int LIST_HEIGHT = 60;
 
-	private int col1X, col2X, colW, fieldW, listX, listWidth;
+	private int col1X, col2X, colW, fieldW, listX;
 
 	public ConfigScreen(Screen parent) {
 		super(Component.translatable("screen." + ExampleMod.MOD_ID + ".config.title"));
@@ -35,53 +33,34 @@ public class ConfigScreen extends Screen {
 		this.config = ModConfig.get();
 	}
 
-	private void rebuildKeywords() {
-		for (Button b : kwWidgets) this.removeWidget(b);
-		kwWidgets.clear();
-		int start = page * PAGE_SIZE, end = Math.min(start + PAGE_SIZE, config.triggerKeywords.size());
-		for (int i = start; i < end; i++) {
-			final int idx = i; int by = 30 + (i - start) * WIDGET_HEIGHT;
-			kwWidgets.add(this.addRenderableWidget(Button.builder(Component.literal(config.triggerKeywords.get(i)), b -> {}).bounds(listX + 4, by, listWidth - 46, WIDGET_HEIGHT).build()));
-			kwWidgets.add(this.addRenderableWidget(Button.builder(
-				Component.literal("[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]"),
-				b -> { config.triggerKeywords.remove(idx); config.save(); if (page * PAGE_SIZE >= config.triggerKeywords.size() && page > 0) page--; rebuildKeywords(); }
-			).bounds(listX + listWidth - 46, by, 42, WIDGET_HEIGHT).build()));
-		}
-	}
-
 	@Override
 	protected void init() {
-		this.listWidth = Math.min(300, this.width - 40);
+		int listWidth = Math.min(300, this.width - 40);
 		this.listX = (this.width - listWidth) / 2;
 		this.colW = (listWidth - COL_GAP) / 2;
 		this.col1X = listX;
 		this.col2X = listX + colW + COL_GAP;
 		this.fieldW = colW - LABEL_WIDTH - 4;
-		if (page < 0) page = 0;
-		rebuildKeywords();
 
-		int rowY = 30 + LIST_H + 4;
-		int totalPages = Math.max(1, (config.triggerKeywords.size() + PAGE_SIZE - 1) / PAGE_SIZE);
-		if (totalPages > 1) {
-			this.addRenderableWidget(Button.builder(Component.literal("<"), b -> { if (page > 0) { page--; rebuildKeywords(); } }).bounds(listX, rowY, 20, WIDGET_HEIGHT).build());
-			this.addRenderableWidget(Button.builder(Component.literal(">"), b -> { if ((page + 1) * PAGE_SIZE < config.triggerKeywords.size()) { page++; rebuildKeywords(); } }).bounds(listX + 24, rowY, 20, WIDGET_HEIGHT).build());
-			rowY += WIDGET_HEIGHT + 2;
-		}
+		int listY = 30;
+		this.keywordList = new KeywordList(this.minecraft, listWidth, LIST_HEIGHT, listY, WIDGET_HEIGHT);
+		this.keywordList.setPosition(listX, listY);
+		this.addRenderableWidget(this.keywordList);
 
-		this.addKeywordField = new EditBox(this.font, listX, rowY, listWidth - 50, WIDGET_HEIGHT,
+		int addY = listY + LIST_HEIGHT + 4;
+		this.addKeywordField = new EditBox(this.font, listX, addY, listWidth - 50, WIDGET_HEIGHT,
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.add_hint"));
 		this.addRenderableWidget(this.addKeywordField);
 		this.addRenderableWidget(Button.builder(
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.add"),
-			btn -> { String t = addKeywordField.getValue().trim(); if (!t.isEmpty() && !config.triggerKeywords.contains(t)) { config.triggerKeywords.add(t); addKeywordField.setValue(""); config.save(); rebuildKeywords(); } }
-		).bounds(listX + listWidth - 45, rowY, 45, WIDGET_HEIGHT).build());
+			btn -> { String t = addKeywordField.getValue().trim(); if (!t.isEmpty() && !config.triggerKeywords.contains(t)) { config.triggerKeywords.add(t); addKeywordField.setValue(""); config.save(); keywordList.refresh(); } }
+		).bounds(listX + listWidth - 45, addY, 45, WIDGET_HEIGHT).build());
 
-		rowY += ROW_H + 6;
-		this.soundIdField = addField(col1X, rowY, fieldW, config.flightSoundId); this.soundIdField.setMaxLength(200);
-		this.volumeField = addField(col2X, rowY, fieldW, String.valueOf(config.flightSoundVolume));
+		int rowY = addY + ROW_H + 6;
+		this.soundIdField = addField(listX, rowY, listWidth - LABEL_WIDTH - 4, config.flightSoundId); this.soundIdField.setMaxLength(200);
 		rowY += ROW_H;
-		this.checkIntervalField = addField(col1X, rowY, fieldW, String.valueOf(config.checkIntervalTicks));
-		this.minAirBlocksField = addField(col2X, rowY, fieldW, String.valueOf(config.fallingSoundMinAirBlocks));
+		this.volumeField = addField(col1X, rowY, fieldW, String.valueOf(config.flightSoundVolume));
+		this.checkIntervalField = addField(col2X, rowY, fieldW, String.valueOf(config.checkIntervalTicks));
 		rowY += ROW_H;
 		this.fallDamageToggle = addToggleBtn(col1X, rowY, colW, "prevent_fall_damage", config.preventFallDamageWhenNotFlying, v -> { config.preventFallDamageWhenNotFlying = v; config.save(); });
 		this.addRenderableWidget(Button.builder(toggleMsg("falling_sound", config.playSoundWhenFalling), btn -> {
@@ -89,10 +68,11 @@ public class ConfigScreen extends Screen {
 			btn.setMessage(toggleMsg("falling_sound", config.playSoundWhenFalling));
 		}).bounds(col2X, rowY, colW, WIDGET_HEIGHT).build());
 		rowY += ROW_H;
-		this.fadeInField = addField(col1X, rowY, fieldW, String.valueOf(config.fadeInMs));
-		this.fadeOutField = addField(col2X, rowY, fieldW, String.valueOf(config.fadeOutMs));
+		this.minAirBlocksField = addField(col1X, rowY, fieldW, String.valueOf(config.fallingSoundMinAirBlocks));
+		this.fadeInField = addField(col2X, rowY, fieldW, String.valueOf(config.fadeInMs));
 		rowY += ROW_H;
-		this.loopToggle = addToggleBtn(col1X, rowY, colW, "loop_audio", config.loopAudio, v -> { config.loopAudio = v; config.save(); });
+		this.fadeOutField = addField(col1X, rowY, fieldW, String.valueOf(config.fadeOutMs));
+		this.loopToggle = addToggleBtn(col2X, rowY, colW, "loop_audio", config.loopAudio, v -> { config.loopAudio = v; config.save(); });
 
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> { saveAllFields(); this.minecraft.setScreen(parent); })
 			.bounds(this.width / 2 - 50, this.height - 28, 100, WIDGET_HEIGHT).build());
@@ -133,4 +113,28 @@ public class ConfigScreen extends Screen {
 	}
 
 	@Override public void onClose() { saveAllFields(); this.minecraft.setScreen(parent); }
+
+	private class KeywordList extends ObjectSelectionList<KeywordEntry> {
+		public KeywordList(Minecraft mc, int w, int h, int top, int ih) { super(mc, w, h, top, ih); refresh(); }
+		void refresh() { clearEntries(); for (String kw : config.triggerKeywords) addEntry(new KeywordEntry(kw)); }
+		@Override public int getRowWidth() { return this.width - 20; }
+		public int getScrollbarPosition() { return this.getRight() - 6; }
+	}
+	private class KeywordEntry extends ObjectSelectionList.Entry<KeywordEntry> {
+		final String kw;
+		KeywordEntry(String kw) { this.kw = kw; }
+		@Override public void render(GuiGraphics g, int idx, int y, int x, int ew, int eh, int mx, int my, boolean hov, float delta) {
+			int cy = y + (eh - font.lineHeight) / 2;
+			g.drawString(font, kw, x + 4, cy, 0xFFFFFFFF);
+			String rl = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
+			g.drawString(font, rl, x + keywordList.getRowWidth() - font.width(rl) - 4, cy, 0xFFFF5555);
+		}
+		@Override public boolean mouseClicked(double mx, double my, int btn) {
+			int rl = keywordList.getRowLeft(), rw = keywordList.getRowWidth();
+			String rls = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
+			if (mx >= rl + rw - font.width(rls) - 8 && mx <= rl + rw) { config.triggerKeywords.remove(kw); config.save(); keywordList.refresh(); return true; }
+			return false;
+		}
+		@Override public Component getNarration() { return Component.literal(kw); }
+	}
 }
