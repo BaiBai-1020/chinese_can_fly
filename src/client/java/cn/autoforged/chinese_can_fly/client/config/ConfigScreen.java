@@ -141,8 +141,7 @@ public class ConfigScreen extends Screen {
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
 		String titleStr = this.title.getString();
-		int tw = this.font.width(titleStr);
-		graphics.text(this.font, titleStr, this.width / 2 - tw / 2, 14, 0xFFFFFFFF, false);
+		int tw = this.font.width(titleStr); graphics.text(this.font, titleStr, this.width / 2 - tw / 2, 14, 0xFFFFFFFF, false);
 		int labelColor = 0xFFA0A0A0;
 		final int lh = this.font.lineHeight;
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.sound_id", soundIdField, labelColor, lh);
@@ -213,8 +212,5 @@ public class ConfigScreen extends Screen {
 
 		@Override
 		public Component getNarration() { return Component.literal(keyword); }
-
-		@Override
-		public boolean isMouseOver(double mouseX, double mouseY) { return false; }
 	}
 }
