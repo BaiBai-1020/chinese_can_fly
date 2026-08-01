@@ -15,7 +15,7 @@ public class ConfigScreen extends Screen {
 	private final Screen parent;
 	private ModConfig config;
 	private EditBox addKeywordField;
-	private EditBox soundIdField, volumeField, checkIntervalField, minAirBlocksField, fadeInField, fadeOutField;
+	private EditBox volumeField, checkIntervalField, minAirBlocksField, fadeInField, fadeOutField;
 	private Button fallDamageToggle, loopToggle;
 	private int page;
 	private final List<Button> kwWidgets = new ArrayList<>();
@@ -72,11 +72,8 @@ public class ConfigScreen extends Screen {
 		).bounds(listX + listWidth - 45, rowY, 45, WIDGET_HEIGHT).build());
 
 		rowY += ROW_H + 6;
-		this.soundIdField = addField(col1X, rowY, fieldW, config.flightSoundId); this.soundIdField.setMaxLength(200);
-		this.volumeField = addField(col2X, rowY, fieldW, String.valueOf(config.flightSoundVolume));
-		rowY += ROW_H;
-		this.checkIntervalField = addField(col1X, rowY, fieldW, String.valueOf(config.checkIntervalTicks));
-		this.minAirBlocksField = addField(col2X, rowY, fieldW, String.valueOf(config.fallingSoundMinAirBlocks));
+		this.volumeField = addField(col1X, rowY, fieldW, String.valueOf(config.flightSoundVolume));
+		this.checkIntervalField = addField(col2X, rowY, fieldW, String.valueOf(config.checkIntervalTicks));
 		rowY += ROW_H;
 		this.fallDamageToggle = addToggleBtn(col1X, rowY, colW, "prevent_fall_damage", config.preventFallDamageWhenNotFlying, v -> { config.preventFallDamageWhenNotFlying = v; config.save(); });
 		this.addRenderableWidget(Button.builder(toggleMsg("falling_sound", config.playSoundWhenFalling), btn -> {
@@ -87,7 +84,8 @@ public class ConfigScreen extends Screen {
 		this.fadeInField = addField(col1X, rowY, fieldW, String.valueOf(config.fadeInMs));
 		this.fadeOutField = addField(col2X, rowY, fieldW, String.valueOf(config.fadeOutMs));
 		rowY += ROW_H;
-		this.loopToggle = addToggleBtn(col1X, rowY, colW, "loop_audio", config.loopAudio, v -> { config.loopAudio = v; config.save(); });
+		this.minAirBlocksField = addField(col1X, rowY, fieldW, String.valueOf(config.fallingSoundMinAirBlocks));
+		this.loopToggle = addToggleBtn(col2X, rowY, colW, "loop_audio", config.loopAudio, v -> { config.loopAudio = v; config.save(); });
 
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> { saveAllFields(); this.minecraft.setScreen(parent); })
 			.bounds(this.width / 2 - 50, this.height - 28, 100, WIDGET_HEIGHT).build());
@@ -100,7 +98,6 @@ public class ConfigScreen extends Screen {
 	}
 
 	private void saveAllFields() {
-		String ns = soundIdField.getValue().trim(); if (!ns.isEmpty() && ns.contains(":")) config.flightSoundId = ns;
 		try { config.flightSoundVolume = clamp(Float.parseFloat(volumeField.getValue().trim()), 0f, 1f); } catch (NumberFormatException ignored) {}
 		try { config.checkIntervalTicks = Math.max(20, Integer.parseInt(checkIntervalField.getValue().trim())); } catch (NumberFormatException ignored) {}
 		try { config.fallingSoundMinAirBlocks = Math.max(0, Integer.parseInt(minAirBlocksField.getValue().trim())); } catch (NumberFormatException ignored) {}
@@ -115,7 +112,6 @@ public class ConfigScreen extends Screen {
 		super.render(g, mouseX, mouseY, delta);
 		g.drawCenteredString(this.font, this.title.getString(), this.width / 2, 14, 0xFFFFFFFF);
 		int lc = 0xFFA0A0A0, lh = this.font.lineHeight;
-		drawLabel(g, "sound_id", soundIdField, lc, lh);
 		drawLabel(g, "volume", volumeField, lc, lh);
 		drawLabel(g, "check_interval", checkIntervalField, lc, lh);
 		drawLabel(g, "min_air_blocks", minAirBlocksField, lc, lh);
