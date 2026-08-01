@@ -72,11 +72,10 @@ public class ConfigScreen extends Screen {
 		).bounds(listX + listWidth - 45, rowY, 45, WIDGET_HEIGHT).build());
 
 		rowY += ROW_H + 6;
-		this.soundIdField = addField(col1X, rowY, fieldW, config.flightSoundId); this.soundIdField.setMaxLength(200);
-		this.volumeField = addField(col2X, rowY, fieldW, String.valueOf(config.flightSoundVolume));
+		this.soundIdField = addField(listX, rowY, listWidth - LABEL_WIDTH - 4, config.flightSoundId); this.soundIdField.setMaxLength(200);
 		rowY += ROW_H;
-		this.checkIntervalField = addField(col1X, rowY, fieldW, String.valueOf(config.checkIntervalTicks));
-		this.minAirBlocksField = addField(col2X, rowY, fieldW, String.valueOf(config.fallingSoundMinAirBlocks));
+		this.volumeField = addField(col1X, rowY, fieldW, String.valueOf(config.flightSoundVolume));
+		this.checkIntervalField = addField(col2X, rowY, fieldW, String.valueOf(config.checkIntervalTicks));
 		rowY += ROW_H;
 		this.fallDamageToggle = addToggleBtn(col1X, rowY, colW, "prevent_fall_damage", config.preventFallDamageWhenNotFlying, v -> { config.preventFallDamageWhenNotFlying = v; config.save(); });
 		this.addRenderableWidget(Button.builder(toggleMsg("falling_sound", config.playSoundWhenFalling), btn -> {
@@ -87,7 +86,8 @@ public class ConfigScreen extends Screen {
 		this.fadeInField = addField(col1X, rowY, fieldW, String.valueOf(config.fadeInMs));
 		this.fadeOutField = addField(col2X, rowY, fieldW, String.valueOf(config.fadeOutMs));
 		rowY += ROW_H;
-		this.loopToggle = addToggleBtn(col1X, rowY, colW, "loop_audio", config.loopAudio, v -> { config.loopAudio = v; config.save(); });
+		this.minAirBlocksField = addField(col1X, rowY, fieldW, String.valueOf(config.fallingSoundMinAirBlocks));
+		this.loopToggle = addToggleBtn(col2X, rowY, colW, "loop_audio", config.loopAudio, v -> { config.loopAudio = v; config.save(); });
 
 		this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, btn -> { saveAllFields(); this.minecraft.gui.setScreen(parent); })
 			.bounds(this.width / 2 - 50, this.height - 28, 100, WIDGET_HEIGHT).build());
