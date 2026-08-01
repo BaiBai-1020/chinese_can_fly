@@ -167,37 +167,42 @@ public class ConfigScreen extends Screen {
 	}
 
 	private class KeywordList extends ObjectSelectionList<KeywordEntry> {
+		private final int listX;
 		public KeywordList(Minecraft minecraft, int width, int height, int y0, int itemHeight) {
 			super(minecraft, width, height, y0, itemHeight);
+			this.listX = (Minecraft.getInstance().getWindow().getGuiScaledWidth() - width) / 2;
 			refresh();
 		}
 		public void refresh() {
 			this.clearEntries();
+			int idx = 0;
 			for (String keyword : config.triggerKeywords) {
-				this.addEntry(new KeywordEntry(keyword, this));
+				this.addEntry(new KeywordEntry(keyword, this, idx++));
 			}
 		}
 		@Override
 		public int getRowWidth() { return this.width - 20; }
-		public int getScrollbarPosition() { return this.getRight() - 6; }
+		public int getScrollbarPosition() { return this.listX + this.width - 6; }
+		protected void renderSelection(GuiGraphics g, int y, int w, int h, int o, int i) {}
 	}
 
 	private class KeywordEntry extends ObjectSelectionList.Entry<KeywordEntry> {
 		private final String keyword;
 		private final KeywordList owner;
-		public KeywordEntry(String keyword, KeywordList owner) { this.keyword = keyword; this.owner = owner; }
+		private final int index;
+		public KeywordEntry(String keyword, KeywordList owner, int index) { this.keyword = keyword; this.owner = owner; this.index = index; }
 
 		@Override
 		public void renderContent(GuiGraphics graphics, int x, int y, boolean hovered, float delta) {
-			int rowWidth = owner.getRowWidth();
-			int cy = y + (WIDGET_HEIGHT - font.lineHeight) / 2;
-			graphics.drawString(font, keyword, x + 4, cy, 0xFFFFFFFF);
+			int sx = owner.listX + 4;
+			int sy = owner.getY() + index * WIDGET_HEIGHT + (WIDGET_HEIGHT - font.lineHeight) / 2;
+			graphics.drawString(font, keyword, sx, sy, 0xFFFFFFFF);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.drawString(font, removeLabel, x + rowWidth - font.width(removeLabel) - 4, cy, 0xFFFF5555);
+			graphics.drawString(font, removeLabel, sx + owner.getRowWidth() - font.width(removeLabel) - 4, sy, 0xFFFF5555);
 		}
 
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			int rowLeft = owner.getRowLeft(), rowWidth = owner.getRowWidth();
+			int rowLeft = owner.listX, rowWidth = owner.getRowWidth();
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
 			int removeRight = rowLeft + rowWidth - 4;
 			int removeLeft = removeRight - font.width(removeLabel) - 4;
