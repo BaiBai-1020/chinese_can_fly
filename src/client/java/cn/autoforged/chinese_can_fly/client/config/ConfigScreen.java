@@ -202,7 +202,7 @@ public class ConfigScreen extends Screen {
 		}
 
 		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			int rowLeft = owner.getX(), rowWidth = owner.getRowWidth();
+			int rowLeft = owner.listX, rowWidth = owner.getRowWidth();
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
 			int removeRight = rowLeft + rowWidth - 4;
 			int removeLeft = removeRight - font.width(removeLabel) - 4;
