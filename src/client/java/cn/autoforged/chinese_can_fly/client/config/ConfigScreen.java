@@ -16,7 +16,7 @@ public class ConfigScreen extends Screen {
 	private ModConfig config;
 	private KeywordList keywordList;
 	private EditBox addKeywordField;
-	private EditBox soundIdField, volumeField, checkIntervalField, minAirBlocksField, fadeInField, fadeOutField;
+	private EditBox volumeField, checkIntervalField, minAirBlocksField, fadeInField, fadeOutField;
 	private Button fallDamageToggle, loopToggle;
 
 	private static final int LABEL_WIDTH = 60;
@@ -57,8 +57,6 @@ public class ConfigScreen extends Screen {
 		).bounds(listX + listWidth - 45, addY, 45, WIDGET_HEIGHT).build());
 
 		int rowY = addY + ROW_H + 6;
-		this.soundIdField = addField(listX, rowY, listWidth - LABEL_WIDTH - 4, config.flightSoundId); this.soundIdField.setMaxLength(200);
-		rowY += ROW_H;
 		this.volumeField = addField(col1X, rowY, fieldW, String.valueOf(config.flightSoundVolume));
 		this.checkIntervalField = addField(col2X, rowY, fieldW, String.valueOf(config.checkIntervalTicks));
 		rowY += ROW_H;
@@ -85,7 +83,6 @@ public class ConfigScreen extends Screen {
 	}
 
 	private void saveAllFields() {
-		String ns = soundIdField.getValue().trim(); if (!ns.isEmpty() && ns.contains(":")) config.flightSoundId = ns;
 		try { config.flightSoundVolume = clamp(Float.parseFloat(volumeField.getValue().trim()), 0f, 1f); } catch (NumberFormatException ignored) {}
 		try { config.checkIntervalTicks = Math.max(20, Integer.parseInt(checkIntervalField.getValue().trim())); } catch (NumberFormatException ignored) {}
 		try { config.fallingSoundMinAirBlocks = Math.max(0, Integer.parseInt(minAirBlocksField.getValue().trim())); } catch (NumberFormatException ignored) {}
@@ -100,7 +97,6 @@ public class ConfigScreen extends Screen {
 		renderDirtBackground(g); super.render(g, mouseX, mouseY, delta);
 		g.drawCenteredString(this.font, this.title.getString(), this.width / 2, 14, 0xFFFFFFFF);
 		int lc = 0xFFA0A0A0, lh = this.font.lineHeight;
-		drawLabel(g, "sound_id", soundIdField, lc, lh);
 		drawLabel(g, "volume", volumeField, lc, lh);
 		drawLabel(g, "check_interval", checkIntervalField, lc, lh);
 		drawLabel(g, "min_air_blocks", minAirBlocksField, lc, lh);
