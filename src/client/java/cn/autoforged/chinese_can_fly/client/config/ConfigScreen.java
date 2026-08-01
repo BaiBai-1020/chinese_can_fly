@@ -168,7 +168,8 @@ public class ConfigScreen extends Screen {
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
 		String titleStr = this.title.getString();
-		graphics.drawCenteredString(this.font, titleStr, this.width / 2, 14, 0xFFFFFFFF);
+		int tw = this.font.width(titleStr);
+		graphics.text(this.font, titleStr, this.width / 2 - tw / 2, 14, 0xFFFFFFFF, false);
 		int labelColor = 0xFFA0A0A0;
 		final int lh = this.font.lineHeight;
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.sound_id", soundIdField, labelColor, lh);
@@ -179,12 +180,12 @@ public class ConfigScreen extends Screen {
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.fade_out", fadeOutField, labelColor, lh);
 	}
 
-	private void drawLabel(GuiGraphics graphics, String key, EditBox field, int color, int lineHeight) {
+	private void drawLabel(GuiGraphicsExtractor graphics, String key, EditBox field, int color, int lineHeight) {
 		if (field == null) return;
 		String text = Component.translatable(key).getString();
 		int labelX = field.getX() - LABEL_WIDTH - 4;
-		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2;
-		graphics.drawString(this.font, text, labelX, labelY, color, false);
+		int labelY = field.getY() + (WIDGET_HEIGHT - lineHeight) / 2 + lineHeight;
+		graphics.text(this.font, text, labelX, labelY, color, false);
 	}
 
 	@Override
