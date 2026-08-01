@@ -23,13 +23,14 @@ public class ConfigScreen extends Screen {
 	private EditBox fadeInField;
 	private EditBox fadeOutField;
 	private Button loopToggle;
-	private final List<Button> keywordButtons = new ArrayList<>();
-	private final List<Button> removeButtons = new ArrayList<>();
+	private int page;
+	private final List<Button> kwWidgets = new ArrayList<>();
+	private static final int PAGE_SIZE = 3;
 
 	private static final int LABEL_WIDTH = 80;
 	private static final int WIDGET_HEIGHT = 20;
 	private static final int ROW_SPACING = 24;
-	private static final int LIST_HEIGHT = 60;
+	private static final int LIST_HEIGHT = PAGE_SIZE * WIDGET_HEIGHT;
 	private int listX, listY, listWidth;
 
 	public ConfigScreen(Screen parent) {
@@ -39,22 +40,21 @@ public class ConfigScreen extends Screen {
 	}
 
 	private void rebuildKeywords() {
-		for (Button b : keywordButtons) this.removeWidget(b);
-		for (Button b : removeButtons) this.removeWidget(b);
-		keywordButtons.clear();
-		removeButtons.clear();
-		int kwMax = Math.min(config.triggerKeywords.size(), LIST_HEIGHT / WIDGET_HEIGHT);
-		for (int i = 0; i < kwMax; i++) {
+		for (Button b : kwWidgets) this.removeWidget(b);
+		kwWidgets.clear();
+		int start = page * PAGE_SIZE;
+		int end = Math.min(start + PAGE_SIZE, config.triggerKeywords.size());
+		for (int i = start; i < end; i++) {
 			final int idx = i;
 			String kw = config.triggerKeywords.get(i);
-			int by = listY + i * WIDGET_HEIGHT;
-			Button kwBtn = this.addRenderableWidget(Button.builder(Component.literal(kw), b -> {}).bounds(listX + 4, by, listWidth - 50, WIDGET_HEIGHT).build());
-			keywordButtons.add(kwBtn);
+			int by = listY + (i - start) * WIDGET_HEIGHT;
+			Button kwBtn = this.addRenderableWidget(Button.builder(Component.literal(kw), b -> {}).bounds(listX + 4, by, listWidth - 46, WIDGET_HEIGHT).build());
+			kwWidgets.add(kwBtn);
 			Button delBtn = this.addRenderableWidget(Button.builder(
 				Component.literal("[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]"),
-				b -> { config.triggerKeywords.remove(idx); config.save(); rebuildKeywords(); }
+				b -> { config.triggerKeywords.remove(idx); config.save(); if (page * PAGE_SIZE >= config.triggerKeywords.size() && page > 0) page--; rebuildKeywords(); }
 			).bounds(listX + listWidth - 46, by, 42, WIDGET_HEIGHT).build());
-			removeButtons.add(delBtn);
+			kwWidgets.add(delBtn);
 		}
 	}
 
@@ -63,10 +63,17 @@ public class ConfigScreen extends Screen {
 		this.listWidth = Math.min(300, this.width - 40);
 		this.listX = (this.width - listWidth) / 2;
 		this.listY = 30;
-
+		if (page < 0) page = 0;
 		rebuildKeywords();
 
 		int rowY = listY + LIST_HEIGHT + 4;
+		int totalPages = Math.max(1, (config.triggerKeywords.size() + PAGE_SIZE - 1) / PAGE_SIZE);
+		if (totalPages > 1) {
+			this.addRenderableWidget(Button.builder(Component.literal("<"), b -> { if (page > 0) { page--; rebuildKeywords(); } }).bounds(listX, rowY, 20, WIDGET_HEIGHT).build());
+			this.addRenderableWidget(Button.builder(Component.literal(">"), b -> { if ((page + 1) * PAGE_SIZE < config.triggerKeywords.size()) { page++; rebuildKeywords(); } }).bounds(listX + 24, rowY, 20, WIDGET_HEIGHT).build());
+			rowY += WIDGET_HEIGHT + 2;
+		}
+
 		this.addKeywordField = new EditBox(this.font, listX, rowY, listWidth - 50, WIDGET_HEIGHT,
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.add_hint"));
 		this.addRenderableWidget(this.addKeywordField);
