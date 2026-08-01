@@ -184,12 +184,30 @@ public class ConfigScreen extends Screen {
 		public int getRowWidth() { return this.width - 20; }
 		public int getScrollbarPosition() { return this.listX + this.width - 6; }
 		protected void renderSelection(GuiGraphicsExtractor g, int y, int w, int h, int o, int i) {}
+		public boolean mouseClicked(double mouseX, double mouseY, int button) {
+			int rowWidth = getRowWidth();
+			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
+			int removeRight = this.listX + rowWidth - 4;
+			int removeLeft = removeRight - font.width(removeLabel) - 4;
+			for (KeywordEntry entry : this.children()) {
+				double entryY = this.getY() + entry.index * WIDGET_HEIGHT;
+				if (mouseY >= entryY && mouseY < entryY + WIDGET_HEIGHT) {
+					if (mouseX >= removeLeft && mouseX <= removeRight) {
+						config.triggerKeywords.remove(entry.keyword);
+						config.save();
+						refresh();
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 	}
 
 	private class KeywordEntry extends ObjectSelectionList.Entry<KeywordEntry> {
-		private final String keyword;
+		final String keyword;
 		private final KeywordList owner;
-		private final int index;
+		final int index;
 		public KeywordEntry(String keyword, KeywordList owner, int index) { this.keyword = keyword; this.owner = owner; this.index = index; }
 
 		@Override
@@ -199,15 +217,6 @@ public class ConfigScreen extends Screen {
 			graphics.text(font, keyword, sx, sy, 0xFFFFFFFF, false);
 			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
 			graphics.text(font, removeLabel, sx + owner.getRowWidth() - font.width(removeLabel) - 4, sy, 0xFFFF5555, false);
-		}
-
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			int rowLeft = owner.listX, rowWidth = owner.getRowWidth();
-			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			int removeRight = rowLeft + rowWidth - 4;
-			int removeLeft = removeRight - font.width(removeLabel) - 4;
-			if (mouseX >= removeLeft && mouseX <= removeRight) { config.triggerKeywords.remove(keyword); config.save(); owner.refresh(); return true; }
-			return false;
 		}
 
 		@Override
