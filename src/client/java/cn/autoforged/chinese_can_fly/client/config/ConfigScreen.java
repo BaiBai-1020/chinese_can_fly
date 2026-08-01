@@ -59,12 +59,9 @@ public class ConfigScreen extends Screen {
 		rebuildKeywords();
 
 		int rowY = 30 + LIST_H + 4;
-		int totalPages = Math.max(1, (config.triggerKeywords.size() + PAGE_SIZE - 1) / PAGE_SIZE);
-		if (totalPages > 1) {
-			this.addRenderableWidget(Button.builder(Component.literal("<"), b -> { if (page > 0) { page--; rebuildKeywords(); } }).bounds(listX, rowY, 20, WIDGET_HEIGHT).build());
-			this.addRenderableWidget(Button.builder(Component.literal(">"), b -> { if ((page + 1) * PAGE_SIZE < config.triggerKeywords.size()) { page++; rebuildKeywords(); } }).bounds(listX + 24, rowY, 20, WIDGET_HEIGHT).build());
-			rowY += WIDGET_HEIGHT + 2;
-		}
+		this.addRenderableWidget(Button.builder(Component.literal("<"), b -> { if (page > 0) { page--; rebuildKeywords(); } }).bounds(listX, rowY, 20, WIDGET_HEIGHT).build());
+		this.addRenderableWidget(Button.builder(Component.literal(">"), b -> { if ((page + 1) * PAGE_SIZE < config.triggerKeywords.size()) { page++; rebuildKeywords(); } }).bounds(listX + 24, rowY, 20, WIDGET_HEIGHT).build());
+		rowY += WIDGET_HEIGHT + 2;
 
 		this.addKeywordField = new EditBox(this.font, listX, rowY, listWidth - 50, WIDGET_HEIGHT,
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.add_hint"));
