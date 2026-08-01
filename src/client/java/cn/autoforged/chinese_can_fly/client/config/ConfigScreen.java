@@ -212,8 +212,5 @@ public class ConfigScreen extends Screen {
 
 		@Override
 		public Component getNarration() { return Component.literal(keyword); }
-
-		@Override
-		public boolean isMouseOver(double mouseX, double mouseY) { return false; }
 	}
 }
