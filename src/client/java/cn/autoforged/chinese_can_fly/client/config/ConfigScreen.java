@@ -138,7 +138,7 @@ public class ConfigScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		this.renderBackground(graphics);
+		graphics.fill(0, 0, this.width, this.height, 0xC0101010);
 		super.render(graphics, mouseX, mouseY, delta);
 		String titleStr = this.title.getString();
 		graphics.drawCenteredString(this.font, titleStr, this.width / 2, 14, 0xFFFFFFFF);
