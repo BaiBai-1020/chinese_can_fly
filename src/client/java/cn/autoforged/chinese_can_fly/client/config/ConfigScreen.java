@@ -2,19 +2,18 @@ package cn.autoforged.chinese_can_fly.client.config;
 
 import cn.autoforged.chinese_can_fly.ExampleMod;
 import cn.autoforged.chinese_can_fly.config.ModConfig;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigScreen extends Screen {
 	private final Screen parent;
 	private ModConfig config;
-	private KeywordList keywordList;
 	private EditBox addKeywordField;
 	private EditBox soundIdField;
 	private EditBox volumeField;
@@ -24,11 +23,14 @@ public class ConfigScreen extends Screen {
 	private EditBox fadeInField;
 	private EditBox fadeOutField;
 	private Button loopToggle;
+	private final List<Button> keywordButtons = new ArrayList<>();
+	private final List<Button> removeButtons = new ArrayList<>();
 
 	private static final int LABEL_WIDTH = 80;
 	private static final int WIDGET_HEIGHT = 20;
 	private static final int ROW_SPACING = 24;
 	private static final int LIST_HEIGHT = 60;
+	private int listX, listY, listWidth;
 
 	public ConfigScreen(Screen parent) {
 		super(Component.translatable("screen." + ExampleMod.MOD_ID + ".config.title"));
@@ -36,15 +38,33 @@ public class ConfigScreen extends Screen {
 		this.config = ModConfig.get();
 	}
 
+	private void rebuildKeywords() {
+		for (Button b : keywordButtons) this.removeWidget(b);
+		for (Button b : removeButtons) this.removeWidget(b);
+		keywordButtons.clear();
+		removeButtons.clear();
+		int kwMax = Math.min(config.triggerKeywords.size(), LIST_HEIGHT / WIDGET_HEIGHT);
+		for (int i = 0; i < kwMax; i++) {
+			final int idx = i;
+			String kw = config.triggerKeywords.get(i);
+			int by = listY + i * WIDGET_HEIGHT;
+			Button kwBtn = this.addRenderableWidget(Button.builder(Component.literal(kw), b -> {}).bounds(listX + 4, by, listWidth - 50, WIDGET_HEIGHT).build());
+			keywordButtons.add(kwBtn);
+			Button delBtn = this.addRenderableWidget(Button.builder(
+				Component.literal("[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]"),
+				b -> { config.triggerKeywords.remove(idx); config.save(); rebuildKeywords(); }
+			).bounds(listX + listWidth - 46, by, 42, WIDGET_HEIGHT).build());
+			removeButtons.add(delBtn);
+		}
+	}
+
 	@Override
 	protected void init() {
-		int listWidth = Math.min(300, this.width - 40);
-		int listX = (this.width - listWidth) / 2;
+		this.listWidth = Math.min(300, this.width - 40);
+		this.listX = (this.width - listWidth) / 2;
+		this.listY = 30;
 
-		int listY = 30;
-		this.keywordList = new KeywordList(this.minecraft, listWidth, LIST_HEIGHT, listY, WIDGET_HEIGHT);
-		this.keywordList.setPosition(listX, listY);
-		this.addRenderableWidget(this.keywordList);
+		rebuildKeywords();
 
 		int rowY = listY + LIST_HEIGHT + 4;
 		this.addKeywordField = new EditBox(this.font, listX, rowY, listWidth - 50, WIDGET_HEIGHT,
@@ -59,7 +79,7 @@ public class ConfigScreen extends Screen {
 					config.triggerKeywords.add(text);
 					addKeywordField.setValue("");
 					config.save();
-					keywordList.refresh();
+					rebuildKeywords();
 				}
 			}
 		).bounds(listX + listWidth - 45, rowY, 45, WIDGET_HEIGHT).build());
@@ -141,7 +161,7 @@ public class ConfigScreen extends Screen {
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
 		String titleStr = this.title.getString();
-		int tw = this.font.width(titleStr); graphics.text(this.font, titleStr, this.width / 2 - tw / 2, 14, 0xFFFFFFFF, false);
+		graphics.drawCenteredString(this.font, titleStr, this.width / 2, 14, 0xFFFFFFFF);
 		int labelColor = 0xFFA0A0A0;
 		final int lh = this.font.lineHeight;
 		drawLabel(graphics, "screen." + ExampleMod.MOD_ID + ".config.sound_id", soundIdField, labelColor, lh);
@@ -164,62 +184,5 @@ public class ConfigScreen extends Screen {
 	public void onClose() {
 		saveAllFields();
 		this.minecraft.setScreen(parent);
-	}
-
-	private class KeywordList extends ObjectSelectionList<KeywordEntry> {
-		private final int listX;
-		public KeywordList(Minecraft minecraft, int width, int height, int y0, int itemHeight) {
-			super(minecraft, width, height, y0, itemHeight);
-			this.listX = (Minecraft.getInstance().getWindow().getGuiScaledWidth() - width) / 2;
-			refresh();
-		}
-		public void refresh() {
-			this.clearEntries();
-			int idx = 0;
-			for (String keyword : config.triggerKeywords) {
-				this.addEntry(new KeywordEntry(keyword, this, idx++));
-			}
-		}
-		@Override
-		public int getRowWidth() { return this.width - 20; }
-		public int getScrollbarPosition() { return this.listX + this.width - 6; }
-		protected void renderSelection(GuiGraphicsExtractor g, int y, int w, int h, int o, int i) {}
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
-			int rowWidth = getRowWidth();
-			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			int removeRight = this.listX + rowWidth - 4;
-			int removeLeft = removeRight - font.width(removeLabel) - 4;
-			for (KeywordEntry entry : this.children()) {
-				double entryY = this.getY() + entry.index * WIDGET_HEIGHT;
-				if (mouseY >= entryY && mouseY < entryY + WIDGET_HEIGHT) {
-					if (mouseX >= removeLeft && mouseX <= removeRight) {
-						config.triggerKeywords.remove(entry.keyword);
-						config.save();
-						refresh();
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-	}
-
-	private class KeywordEntry extends ObjectSelectionList.Entry<KeywordEntry> {
-		final String keyword;
-		private final KeywordList owner;
-		final int index;
-		public KeywordEntry(String keyword, KeywordList owner, int index) { this.keyword = keyword; this.owner = owner; this.index = index; }
-
-		@Override
-		public void extractContent(GuiGraphicsExtractor graphics, int x, int y, boolean hovered, float delta) {
-			int sx = owner.listX + 4;
-			int sy = owner.getY() + index * WIDGET_HEIGHT + (WIDGET_HEIGHT - font.lineHeight) / 2;
-			graphics.text(font, keyword, sx, sy, 0xFFFFFFFF, false);
-			String removeLabel = "[" + Component.translatable("screen." + ExampleMod.MOD_ID + ".config.remove").getString() + "]";
-			graphics.text(font, removeLabel, sx + owner.getRowWidth() - font.width(removeLabel) - 4, sy, 0xFFFF5555, false);
-		}
-
-		@Override
-		public Component getNarration() { return Component.literal(keyword); }
 	}
 }
