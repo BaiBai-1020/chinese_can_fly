@@ -44,7 +44,6 @@ public class ConfigScreen extends Screen {
 
 		int listY = 30;
 		this.keywordList = new KeywordList(this.minecraft, listWidth, LIST_HEIGHT, listY, WIDGET_HEIGHT);
-		this.keywordList.setPosition(listX, listY);
 		this.addRenderableWidget(this.keywordList);
 
 		int addY = listY + LIST_HEIGHT + 4;
