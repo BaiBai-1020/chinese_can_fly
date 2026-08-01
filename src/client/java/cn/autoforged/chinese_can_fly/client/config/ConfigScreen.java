@@ -170,6 +170,7 @@ public class ConfigScreen extends Screen {
 		public KeywordList(Minecraft minecraft, int listWidth, int listHeight, int top, int itemHeight) {
 			super(minecraft, listWidth, listHeight, top, top + listHeight, itemHeight);
 			this.x0 = (minecraft.getWindow().getGuiScaledWidth() - listWidth) / 2;
+			this.x1 = this.x0 + listWidth;
 			refresh();
 		}
 		public void refresh() {
