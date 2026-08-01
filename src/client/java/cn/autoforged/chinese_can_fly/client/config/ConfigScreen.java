@@ -59,9 +59,12 @@ public class ConfigScreen extends Screen {
 		rebuildKeywords();
 
 		int rowY = 30 + LIST_H + 4;
-		this.addRenderableWidget(Button.builder(Component.literal("<"), b -> { if (page > 0) { page--; rebuildKeywords(); } }).bounds(listX, rowY, 20, WIDGET_HEIGHT).build());
-		this.addRenderableWidget(Button.builder(Component.literal(">"), b -> { if ((page + 1) * PAGE_SIZE < config.triggerKeywords.size()) { page++; rebuildKeywords(); } }).bounds(listX + 24, rowY, 20, WIDGET_HEIGHT).build());
-		rowY += WIDGET_HEIGHT + 2;
+		int totalPages = Math.max(1, (config.triggerKeywords.size() + PAGE_SIZE - 1) / PAGE_SIZE);
+		if (totalPages > 1) {
+			this.addRenderableWidget(Button.builder(Component.literal("<"), b -> { if (page > 0) { page--; rebuildKeywords(); } }).bounds(listX, rowY, 20, WIDGET_HEIGHT).build());
+			this.addRenderableWidget(Button.builder(Component.literal(">"), b -> { if ((page + 1) * PAGE_SIZE < config.triggerKeywords.size()) { page++; rebuildKeywords(); } }).bounds(listX + 24, rowY, 20, WIDGET_HEIGHT).build());
+			rowY += WIDGET_HEIGHT + 2;
+		}
 
 		this.addKeywordField = new EditBox(this.font, listX, rowY, listWidth - 50, WIDGET_HEIGHT,
 			Component.translatable("screen." + ExampleMod.MOD_ID + ".config.add_hint"));
@@ -113,8 +116,7 @@ public class ConfigScreen extends Screen {
 	@Override
 	public void render(GuiGraphics g, int mouseX, int mouseY, float delta) {
 		super.render(g, mouseX, mouseY, delta);
-		String ts = this.title.getString(); int tw = this.font.width(ts);
-		g.text(this.font, ts, this.width / 2 - tw / 2, 14, 0xFFFFFFFF, false);
+		g.drawCenteredString(this.font, this.title.getString(), this.width / 2, 14, 0xFFFFFFFF);
 		int lc = 0xFFA0A0A0, lh = this.font.lineHeight;
 		drawLabel(g, "sound_id", soundIdField, lc, lh);
 		drawLabel(g, "volume", volumeField, lc, lh);
